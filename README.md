@@ -31,6 +31,10 @@ Run the dsRID script to include the training process with the following command:
 
 ```
 bash dsRID.sh <input_file> <output_dir>
+
+# Example:
+bash dsRID.sh ../data/ENCFF417VHJ.fastq ../output_data
+
 ```
 
 Here, <input_file> is the path to the input BAM file, and <output_dir> is the path to the output folder containing the training dsRNA regions and whole genome scan of predicted dsRNA regions.
