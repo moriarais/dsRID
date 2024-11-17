@@ -13,6 +13,7 @@ from os.path import exists
 #from functools import partial
 
 def main(args):
+    print("extract_whole.py init")
     argp = ap.ArgumentParser(description="extract features for dsrna prediction for real dsrna region",
                              formatter_class=ap.ArgumentDefaultsHelpFormatter)
     argp.add_argument(
@@ -37,7 +38,8 @@ def main(args):
     )
 
     args = argp.parse_args(args)
-
+    print("argp")
+    print(argp)
     mapq_thr = 20
     #chr = args.chr
     window = 2500
@@ -45,6 +47,7 @@ def main(args):
     #chrs = args.chr
     chrs = ["chrX", "chrY"]
     chrs.extend(["chr" + str(i) for i in range(1, 23)])
+    print("chrs")
     print(chrs)
     sample_num = 1000000
     chr_max = {}
@@ -154,6 +157,7 @@ def main(args):
             name = chr + ":" + str(start) + "-" + str(end)
     feat_total = pd.concat(feat_lst)
     feat_total = pd.concat([feat_total, frame_prev])
+    print("extract_whole.py complete")
     feat_total.to_csv(args.out_file, sep='\t')
 
 if __name__ == '__main__':

@@ -11,6 +11,7 @@ from utils import *
 #from functools import partial
 
 def main(args):
+    print("extract_train.py init")
     argp = ap.ArgumentParser(description="extract features for dsrna prediction for real dsrna region",
                              formatter_class=ap.ArgumentDefaultsHelpFormatter)
     argp.add_argument(
@@ -47,6 +48,7 @@ def main(args):
     #chr = args.chr
 
     dsrna = pd.read_csv(args.ds_file, sep='\t', names=['chr', 'start', 'end', 'name'], header=None)
+    print("dsRNA")
     print(dsrna)
     dsrna = dsrna.sort_values(by=['chr', 'start'])
     sam = pysam.AlignmentFile(args.bam_file, 'rb')

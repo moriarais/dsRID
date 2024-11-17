@@ -55,6 +55,8 @@ If you would like to opt out training process and directly proceed to prediction
 ```
 python src/extract_whole.py -b <input_bam_file> -o <output_dir>/dsRID_whole.tsv
 python src/model_predict.py -i /data/Pacbio_AD_data.tsv -p <output_dir>/dsRID_whole.tsv -o <output_dir>
+
+python src/model_predict.py -i data/Pacbio_AD_data.tsv -p /private11/data/Projects/raismor/dsRID_project/ENCFF417VHJ_output/dsRID_whole.tsv -o /private11/data/Projects/raismor/dsRID_project/ENCFF417VHJ_output
 ```
 
 ## Results
@@ -71,3 +73,10 @@ Xinshu Xiao - Bioinformatics Interdepartmental Program, Department of Integrativ
 
 ## License
 This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
+
+
+## Additions
+# extrect all errors and warnings into external txt file
+python *.py 2> errors_and_warnings.txt
+
+bash dsRID.sh ../input-data/ENCFF417VHJ_sorted.bam ../ENCFF417VHJ_output
