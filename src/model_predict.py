@@ -12,7 +12,7 @@ from utils import *
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import LinearSVC
 
@@ -83,6 +83,7 @@ def main(args):
     # train_null_frame = all_null_frame.iloc[:30000]
 
     # Split data into training and validation sets
+    # X_train, X_test, y_train, y_test
     train_X, val_X, train_y, val_y = train_test_split(all_frame, all_frame['label'], test_size=0.33, random_state=42)
 
     # Define columns to be used in training, excluding certain metadata columns
@@ -110,16 +111,20 @@ def main(args):
     feat_imp_df.to_csv(args.out_dir + "/feat_importance_{}.tsv".format(modeltype), sep='\t', index=False)
 
     # Perform cross-validation and save cross-validation scores
+    # evaluate the performance of a model by splitting the data into multiple subsets, or "folds," to ensure that the model is tested on different parts of the data. It helps assess how well the model generalizes to unseen data and reduces the risk of overfitting or underfitting.
     scores = cross_val_score(model, train_X.loc[:, cols], train_y, cv=5)
     sc_frame = pd.DataFrame(data={"scores": scores})
     sc_frame.to_csv(args.out_dir + "/cv_scores_{}.tsv".format(modeltype), sep='\t', index=False)
-    print("scores")
+    print("cross-validation scores")
     print(scores)
 
     # Generate predictions for the training set and add them as new columns
     train_pred = model.predict_proba(train_X.loc[:, cols])
     train_X['pred_0'] = train_pred[:, 0]
     train_X['pred_1'] = train_pred[:, 1]
+
+    print("classification_report")
+    print(classification_report(val_y, train_pred))
 
     # Load prediction data, fill missing values, and convert column names to lowercase
     pred_frame = pd.read_csv(args.pred_file, sep='\t')

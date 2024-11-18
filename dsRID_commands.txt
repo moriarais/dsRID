@@ -1,0 +1,23 @@
+
+
+# /private/dropbox/Genomes/Human/hg38/hg38.fa
+# Align fastq to sam file
+
+# minimap2 -ax map-ont -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF417VHJ.fastq > ENCFF417VHJ.sam
+# minimap2 -ax splice -L --cs /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF417VHJ.fastq > ENCFF417VHJ.sam
+minimap2 -ax splice -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF417VHJ.fastq > ENCFF417VHJ.sam &
+minimap2 -ax splice -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF708BOP.fastq > ENCFF708BOP.sam &
+
+# process1 - sort BAM files by chromosome and position
+samtools view -b ENCFF417VHJ.sam > ENCFF417VHJ.bam
+samtools view -b ENCFF708BOP.sam > ENCFF708BOP.bam
+
+# process2 - Index BAM file for quick access
+samtools sort ENCFF417VHJ.bam -o ENCFF417VHJ_sorted.bam
+
+# index
+samtools index ENCFF417VHJ_sorted.bam
+
+# run the script:
+nohup bash dsRID.sh ../input-data/ENCFF417VHJ_sorted.bam ../ENCFF417VHJ_output &
+
