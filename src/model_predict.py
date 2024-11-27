@@ -12,7 +12,7 @@ from utils import *
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import r2_score, classification_report
+from sklearn.metrics import r2_score, classification_report, accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import LinearSVC
 
@@ -91,6 +91,7 @@ def main(args):
     print(train_X.loc[:, cols])
 
     # Fit the model to the training data
+    # Train the model
     model = model.fit(train_X.loc[:, cols], train_y)
 
     # Optional code for training score and predictions
@@ -115,16 +116,31 @@ def main(args):
     scores = cross_val_score(model, train_X.loc[:, cols], train_y, cv=5)
     sc_frame = pd.DataFrame(data={"scores": scores})
     sc_frame.to_csv(args.out_dir + "/cv_scores_{}.tsv".format(modeltype), sep='\t', index=False)
-    print("cross-validation scores")
+    print("cross-validation scores (default: accuracy) - It helps estimate the model's generalization performance.")
     print(scores)
+    mean_score = np.mean(scores)
+    print("Average Cross-Validation Score:", mean_score)
+
 
     # Generate predictions for the training set and add them as new columns
     train_pred = model.predict_proba(train_X.loc[:, cols])
     train_X['pred_0'] = train_pred[:, 0]
     train_X['pred_1'] = train_pred[:, 1]
 
-    print("classification_report")
-    print(classification_report(val_y, train_pred))
+    # Generate probability predictions for the validation set
+    val_pred_prob = model.predict_proba(val_X.loc[:, cols])[:, 1]  # Probabilities for Class 1
+
+    # Compute the ROC-AUC score
+    roc_auc = roc_auc_score(val_y, val_pred_prob)
+    print("ROC-AUC Score: {:.2f}".format(roc_auc))
+
+    # Generate predictions for the validation set
+    val_pred = model.predict(val_X.loc[:, cols])
+
+    # Evaluate and print the classification report
+    class_report = classification_report(val_y, val_pred, target_names=["Class 0", "Class 1"])
+    print("Classification Report:")
+    print(class_report)
 
     # Load prediction data, fill missing values, and convert column names to lowercase
     pred_frame = pd.read_csv(args.pred_file, sep='\t')
@@ -143,9 +159,14 @@ def main(args):
 
     # Generate predictions for the entire dataset and add them as new columns
     whole_pred = model.predict_proba(pred_frame.loc[:, cols])
+
     pred_frame['pred_0'] = whole_pred[:, 0]
     pred_frame['pred_1'] = whole_pred[:, 1]
+
+    print("whole_pred")
+    print(whole_pred)
     print("model_predict.py complete")
+
 
     # Save prediction results to an output file
     pred_frame.to_csv(args.out_dir + "dsRID_whole.tsv", sep='\t', index=False)

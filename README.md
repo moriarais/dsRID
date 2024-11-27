@@ -33,7 +33,7 @@ Run the dsRID script to include the training process with the following command:
 bash dsRID.sh <input_file> <output_dir>
 
 # Example:
-bash dsRID.sh ../data/ENCFF417VHJ.fastq ../output_data
+nohup bash dsRID.sh ../input-data/ENCFF417VHJ_sorted.bam ../ENCFF417VHJ_output &
 
 ```
 
