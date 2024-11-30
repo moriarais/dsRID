@@ -1,4 +1,7 @@
 
+# Download the data and unzip
+nohup 
+nohup gzip -dk ENCFF417VHJ.fastq.gz &
 
 # /private/dropbox/Genomes/Human/hg38/hg38.fa
 # Align fastq to sam file

@@ -84,7 +84,9 @@ def main(args):
 
     # Split data into training and validation sets
     # X_train, X_test, y_train, y_test
+    # train_y - 
     train_X, val_X, train_y, val_y = train_test_split(all_frame, all_frame['label'], test_size=0.33, random_state=42)
+
 
     # Define columns to be used in training, excluding certain metadata columns
     cols = ~train_X.columns.isin(["mean_start", "mean_end", "coverage", "num_skip", "name", "chr", "start", "end", "label"])
