@@ -2,10 +2,11 @@
 
 # List of ENCODE experiment IDs
 experiment_ids=(
-    "ENCSR169YNI"
-    "ENCSR257YUB"
-    "ENCSR690QHM"
-    "ENCSR316ZTD"
+    # "ENCSR462COR"
+    # "ENCSR169YNI"
+    # "ENCSR257YUB"
+    # "ENCSR690QHM"
+    # "ENCSR316ZTD"
     "ENCSR697ASE"
     "ENCSR094NFM"
     "ENCSR463IDK"
@@ -34,7 +35,7 @@ for experiment_id in "${experiment_ids[@]}"; do
 
     # Fetch FASTQ file links specifically under "Raw sequencing data" section
     fastq_links=$(curl -s "${base_url}/${experiment_id}/" | grep -oP '/ENCFF[0-9A-Z]+/@@download/[^\"]+\.fastq\.gz' | sed 's#^#https://www.encodeproject.org/files#')
-
+    # https://www.encodeproject.org/files/ENCFF708BOP/@@download/ENCFF708BOP.fastq.gz
 
     echo "$fastq_links"
 
@@ -45,7 +46,7 @@ for experiment_id in "${experiment_ids[@]}"; do
     fi
 
     for link in $fastq_links; do
-        echo "Downloading $link to $gse_number/input/"
+        echo "Downloading $link to raw_data/$gse_number/input/"
         nohup wget -P "$gse_number" "$link" &
     done
 done

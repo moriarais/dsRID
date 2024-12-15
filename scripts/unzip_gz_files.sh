@@ -7,7 +7,7 @@ unzip_fastq_files() {
   # Find all .fastq.gz files under the specified directory
   find "$base_directory" -type f -name "*.fastq.gz" | while read -r file; do
     echo "Decompressing: $file"
-    nohup gzip -dk "$file" &
+    nohup gzip -dk -f "$file" &
   done
 }
 

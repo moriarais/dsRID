@@ -1,36 +1,49 @@
 
+minimap2 -ax splice /private11/Projects/raismor/dsRID_project/raw_data/hg38.mmi  /private/dropbox/Genomes/Human/hg38/hg38.fa | head -20
+
+
 # Download the data and unzip
-nohup 
+nohup wget  {}  &
 nohup gzip -dk ENCFF417VHJ.fastq.gz &
 
 # /private/dropbox/Genomes/Human/hg38/hg38.fa
 # Align fastq to sam file
-minimap2 -ax splice -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF417VHJ.fastq > ENCFF417VHJ.sam &
-minimap2 -ax splice -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF708BOP.fastq > ENCFF708BOP.sam &
+nohup minimap2 -ax splice -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF417VHJ.fastq > ENCFF417VHJ.sam &
+nohup minimap2 -ax splice -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF827DUW.fastq > ENCFF827DUW.sam &
+
+# strand specific 
+minimap2 -ax splice -uf -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF827DUW.fastq > ENCFF827DUW.sam &
+
+minimap2 -ax splice -uf -t 8 --cs -L /private/dropbox/Genomes/Human/hg38/hg38.fa /private11/Projects/raismor/dsRID_project/raw_data/GSE219871/input/ENCFF708BOP.fastq > /private11/Projects/raismor/dsRID_project/raw_data/GSE219871/input/ENCFF708BOP.sam &
+
 
 # process1 - sort BAM files by chromosome and position
-samtools view -b ENCFF417VHJ.sam > ENCFF417VHJ.bam
-samtools view -b ENCFF708BOP.sam > ENCFF708BOP.bam
+nohup samtools view -b /private11/Projects/raismor/dsRID_project/raw_data/GSE219641/input/ENCFF785KVJ.sam > /private11/Projects/raismor/dsRID_project/raw_data/GSE219641/input/ENCFF785KVJ.bam &
+
 
 # process2 - Index BAM file for quick accesss
-samtools sort ENCFF417VHJ.bam -o ENCFF417VHJ_sorted.bam
+nohup samtools sort ENCFF417VHJ.bam -o ENCFF417VHJ_sorted.bam &
+nohup samtools sort ENCFF827DUW.bam -o ENCFF827DUW_sorted.bam &
 
 # index
-samtools index ENCFF417VHJ_sorted.bam
+nohup samtools index ENCFF417VHJ_sorted.bam
 
 # Generate a Variant Call File 
-# nohup bcftools mpileup -f /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF417VHJ_sorted.bam | bcftools call -mv -Oz -o ENCFF417VHJ_variants.vcf.gz &
-# bcftools mpileup -Ou -f /path/to/reference/hg38.fa ENCFF417VHJ_sorted.bam | bcftools call -mv -Ov -o variants.vcf
-# nohup bcftools mpileup -f /private/dropbox/Genomes/Human/hg38/hg38.fa ENCFF417VHJ_sorted.bam > ENCFF417VHJ_output.pileup &
 nohup freebayes -f /private/dropbox/Genomes/Human/hg38/hg38.fa --min-alternate-fraction 0.2 ENCFF417VHJ_sorted.bam > ENCFF417VHJ_variants.vcf &
 
+# Can use IGV tool to analyze the sequances 
 
 
 # Identify A-to-I RNA Editing Sites
-bcftools view -i 'REF="A" & ALT="G"' variants.vcf.gz > A_to_G.vcf
+nohup bcftools view -i 'REF="A" & ALT="G"' variants.vcf.gz > A_to_G.vcf
 
 
 
 # run the script:
 nohup bash dsRID.sh ../input-data/ENCFF417VHJ_sorted.bam ../ENCFF417VHJ_output &
 nohup python src/model_predict.py -i data/Pacbio_AD_data.tsv -p ../ENCFF417VHJ_output/dsRID_whole.tsv -o ../ENCFF417VHJ_output &
+
+
+## MOnitor commands:
+htop -u $USER
+ps -ef | grep minimap | grep -v grep
