@@ -12,7 +12,7 @@ from utils import *
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import r2_score, classification_report, accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import r2_score, classification_report, roc_auc_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import LinearSVC
 
@@ -84,16 +84,14 @@ def main(args):
 
     # Split data into training and validation sets
     # X_train, X_test, y_train, y_test
-    # train_y - 
     train_X, val_X, train_y, val_y = train_test_split(all_frame, all_frame['label'], test_size=0.33, random_state=42)
-
 
     # Define columns to be used in training, excluding certain metadata columns
     cols = ~train_X.columns.isin(["mean_start", "mean_end", "coverage", "num_skip", "name", "chr", "start", "end", "label"])
+    print('train_X.loc[:, cols]')
     print(train_X.loc[:, cols])
 
-    # Fit the model to the training data
-    # Train the model
+    # Train the model with training data
     model = model.fit(train_X.loc[:, cols], train_y)
 
     # Optional code for training score and predictions
@@ -118,11 +116,10 @@ def main(args):
     scores = cross_val_score(model, train_X.loc[:, cols], train_y, cv=5)
     sc_frame = pd.DataFrame(data={"scores": scores})
     sc_frame.to_csv(args.out_dir + "/cv_scores_{}.tsv".format(modeltype), sep='\t', index=False)
-    print("cross-validation scores (default: accuracy) - It helps estimate the model's generalization performance.")
+    print("cross-validation scores")
     print(scores)
     mean_score = np.mean(scores)
     print("Average Cross-Validation Score:", mean_score)
-
 
     # Generate predictions for the training set and add them as new columns
     train_pred = model.predict_proba(train_X.loc[:, cols])
@@ -134,18 +131,19 @@ def main(args):
 
     # Compute the ROC-AUC score
     roc_auc = roc_auc_score(val_y, val_pred_prob)
-    print("ROC-AUC Score: {:.2f}".format(roc_auc))
+    print("ROC-AUC Score for the validation set: {:.2f}".format(roc_auc))
 
     # Generate predictions for the validation set
     val_pred = model.predict(val_X.loc[:, cols])
 
     # Evaluate and print the classification report
-    class_report = classification_report(val_y, val_pred, target_names=["Class 0", "Class 1"])
-    print("Classification Report:")
+    class_report = classification_report(val_y, val_pred)
+    print("Classification Report for the validation set:")
     print(class_report)
 
     # Load prediction data, fill missing values, and convert column names to lowercase
     pred_frame = pd.read_csv(args.pred_file, sep='\t')
+    print("args.pred_file: " + args.pred_file)
     pred_frame = pred_frame.fillna(0)
     pred_frame.columns = map(str.lower, pred_frame.columns)
 
@@ -158,18 +156,18 @@ def main(args):
                                      'bp_end_gt', 'bp_end_tc', 'bp_end_cc', 'bp_end_cg', 'bp_end_ct',
                                      'bp_start_gc', 'bp_start_cg', 'bp_end_at', 'bp_end_ta', 'bp_start_tg',
                                      'bp_start_ga', 'bp_start_ta', 'bp_end_ca', 'bp_end_ga'])
+                                     # 'bp_end_a', 'bp_end_g', 'bp_end_t', 'bp_start_a', 'bp_start_g', 'bp_start_c', 'bp_end_c', 'bp_end_', 'bp_start_', 'bp_start_t'])
 
     # Generate predictions for the entire dataset and add them as new columns
     whole_pred = model.predict_proba(pred_frame.loc[:, cols])
-
     pred_frame['pred_0'] = whole_pred[:, 0]
     pred_frame['pred_1'] = whole_pred[:, 1]
-
+    print("model_predict.py complete")
     print("whole_pred")
     print(whole_pred)
-    print("model_predict.py complete")
-
-
+    print("pred_frame")
+    print(pred_frame)
+    
     # Save prediction results to an output file
     pred_frame.to_csv(args.out_dir + "dsRID_whole.tsv", sep='\t', index=False)
 
