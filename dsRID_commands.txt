@@ -46,4 +46,4 @@ nohup python src/model_predict.py -i data/Pacbio_AD_data.tsv -p ../ENCFF417VHJ_o
 
 ## MOnitor commands:
 htop -u $USER
-ps -ef | grep minimap | grep -v grep
+ps -ef | grep python | grep -v grep
